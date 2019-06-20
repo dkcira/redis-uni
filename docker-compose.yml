@@ -1,0 +1,7 @@
+version: '3'
+services:
+    run:
+        container_name: dredis
+        ports:
+            - '6379:6379'
+        image: redis:5.0.5-alpine
