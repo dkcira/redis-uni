@@ -1,0 +1,27 @@
+
+# Strings
+
+# incrementing and decrementing values (strings and floats)
+set inventory:4x100m-womens-final 1000
+get inventory:4x100m-womens-final
+# decrement
+decrby inventory:4x100m-womens-final 1
+get inventory:4x100m-womens-final
+type inventory:4x100m-womens-final
+object encoding inventory:4x100m-womens-final
+
+# set to non-int string, polymorphism: differents types of data for the same key
+set inventory:4x100m-womens-final "Sold Out"
+# data type may change, no schema
+object encoding inventory:4x100m-womens-final
+# now this will fail because the encoding is not int but text: (error) ERR value is not an integer or out of range
+decrby inventory:4x100m-womens-final 1
+
+# set the key to 0
+set inventory:4x100m-womens-final 0
+
+# short increment by 1
+incr inventory:4x100m-womens-final
+
+# short decrement by 1
+decr inventory:4x100m-womens-final
