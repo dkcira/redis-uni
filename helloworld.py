@@ -2,8 +2,8 @@
 from redis import StrictRedis
 import os
 
-#localhost="localhost" # linux
-localhost="192.168.99.100" # mac
+localhost="localhost" # linux, windows
+#localhost="192.168.99.100" # mac
 
 redis = StrictRedis(host=os.environ.get("REDIS_HOST", localhost),
                     port=os.environ.get("REDIS_PORT", 6379),
