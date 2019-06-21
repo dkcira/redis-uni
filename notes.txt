@@ -1,4 +1,4 @@
-
+_
 # Strings
 
 # incrementing and decrementing values (strings and floats)
@@ -25,3 +25,40 @@ incr inventory:4x100m-womens-final
 
 # short decrement by 1
 decr inventory:4x100m-womens-final
+
+
+# Hashes: a way to store and retrieve an object, mini key-value store within the key
+
+# set one or more fields in hash
+hset event:judo capacity 12000 location "Nippon Budokan" ticket_price:gold 100 availability:gold 8000
+# check for existence of a field with hexist
+hexists event:judo capacity
+# get field value, nil if does not exist
+hget event:judo capacity
+hget event:judo ticket_price:gold
+hget event:judo timezone
+
+# increment the number of tickets by the number of tickets sold. read value back
+hincrby event:judo availability:gold -10
+hget event:judo availability:gold
+
+# return values for all of the fields <= don't use in prod
+hgetall event:judo
+
+# get all keys or all values <= don't use in prod
+hkeys event:judo
+hvals event:judo
+
+# hscan <= use this in prod instead
+# start at cursor 0 and use a matching pattern availability:*
+
+# set a timezone field then remove it with hdel
+hset event:judo timezone JST
+hget event:judo timezone
+hdel event:judo timezone
+
+
+# session objects can be saved as a string, but you could use a hash
+- hmset session:a3fWa ts 1518132669 host www.example.org
+- hincrby session:a3fWa requests 1
+- expire session:a4fWa 60
