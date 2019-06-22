@@ -14,3 +14,4 @@ redis-cli> set hello world
 
 python3 helloworld.py
 
+read course notes at notes.txt
