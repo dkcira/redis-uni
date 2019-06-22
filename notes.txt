@@ -1,4 +1,5 @@
 _
+####################################################################################################
 # Strings
 
 # incrementing and decrementing values (strings and floats)
@@ -27,6 +28,7 @@ incr inventory:4x100m-womens-final
 decr inventory:4x100m-womens-final
 
 
+####################################################################################################
 # Hashes: a way to store and retrieve an object, mini key-value store within the key
 
 # set one or more fields in hash
@@ -57,8 +59,120 @@ hset event:judo timezone JST
 hget event:judo timezone
 hdel event:judo timezone
 
-
 # session objects can be saved as a string, but you could use a hash
 - hmset session:a3fWa ts 1518132669 host www.example.org
 - hincrby session:a3fWa requests 1
 - expire session:a4fWa 60
+
+
+####################################################################################################
+# Lists: ordered collection of elements (strings)
+- duplicates are allowed
+- elements can be added or remove at either end (left, right) or relative to another element
+- simple way to implement stacks, queues, or other data structures
+- a structure can only be comprised of strings, no nesting
+- implemented as double-linked array (constant time insertion left or right / head or tail)
+
+# add to left or right of the list
+lpush
+rpush
+
+# remove from left or right
+lpop
+rpop 
+
+# add 3 orders to 4x100m-womens-final (create list if non-existent)
+lpush orders:4x100m-womens-final jane:4 bill:5 charlie:6
+# find length, 3 in this case
+llen orders:4x100m-womens-final
+# retrieve elements, two parameters: start and stop indexes, the whole list this time
+# indexes start at zero, but the list displayed with start at 1
+lrange orders:4x100m-womens-final 0 -1
+
+# lpush + rpush <= implement a stack
+# rpush + lpop  <= implement a queue
+
+rpush waitlist:basketball-mens-qual brian:2 kate:7 kevin:9
+lrange waitlist:basketball-mens-qual 0 -1
+
+# remove rightmost element
+rpop rpop orders:4x100m-womens-final
+# remove leftmost element
+lpop waitlist:basketball-mens-qual
+
+# List use cases
+- activity stream: most recent activity (e.g. facebook posts)
+  # add items to the left of the list
+	lpush stream one two three four five
+  # get latest 3 items
+  lrange stream 0 2
+  # prune the list, retain 4 elements: five four three two
+  ltrim stream 0 3
+- inter-process communication
+  # queue that supports producer-consumer pattern
+  # produce
+  rpush queue "event1"
+  # keep order: get the events in the same order they produced
+  # pop from the opposite side you pushed
+  lpop queue
+
+
+# Quiz
+
+# execute:
+rpush list-two a b c d
+# a b c d
+lpop list-two
+# pops 'a', remain: b c d
+
+# question: output?
+lindex list-two 1
+# get element at 2nd position (index 1) => c
+ 
+
+# execute:
+set list-four abc
+rpush list-four a b c d
+
+
+# question: What does list-four now contain?
+# an error occurs. 'set' does not create a list, it creates a string so the 'rpush' fails
+
+
+####################################################################################################
+# Data Structures 1: Recap
+
+Basic Redis Data Structures:
+- Keys & Expiration
+- Strings
+- Hashes
+- Lists
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+####################################################################################################
+####################################################################################################
