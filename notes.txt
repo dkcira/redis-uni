@@ -148,6 +148,7 @@ Basic Redis Data Structures:
 - Hashes
 - Lists
 
+
 ####################################################################################################
 # Sets: unordered collection of strings
 - store and manipulate strings
@@ -176,15 +177,6 @@ srem venues "Eiffel Tower"
 spop venues 2
 
 # difference between sets
-
-
-
-
-
-
-
-
-
 sdiff
 
 # create two new sets
@@ -225,14 +217,67 @@ sunion
 
 
 # add element to sorted set: zadd
-- zadd nx / xx => add if valuea does not exists / update an existing element
+- zadd nx / xx => add if value does not exists / update an existing element
 
 # add element with score value of 1
 zadd "subway:K" 1 Tokyo 
+# add 3 elements with score  5 2 2
 zadd "subway:K" 5 Shin 2 Etchu 2 Hatchb
 
 # get elements in ranked order
-zrange
+zrange subway:K 0 -1
+# retrieve showing scores
+zrange subway:K 0 -1 withscores
+
+# add element with same score
+zadd "subway:K" 10 Nishi-Funabashi
+zadd "subway:K" 10 Futamatashimmachi
+
+
+# for elements with same score, sorting uses lexicological ordering
+zrange subway:K 0 -1
+
+
+# find associated score of element
+zscore "subway:K" Tokyo
+
+# find ranking of element (0 for first ranked, 1 for second ranked, and so on)
+zrank "subway:K" Tokyo
+
+
+# count number of members between scores (inclusive)
+zcount "subway:K" 2 5
+
+# find stations between the 2nd and 5th stop
+zrangebyscore "subway:K" 2 5
+
+# remove elemnt(s) by valus
+zrem "subway:K" Shin
+
+# Quiz
+
+# execute:
+zadd q-1 10 a 20 b 30 c 40 d
+# question: What is the Rank of of "b" element?
+# answer: 1
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
