@@ -148,6 +148,34 @@ Basic Redis Data Structures:
 - Hashes
 - Lists
 
+####################################################################################################
+# Sets: unordered collection of strings
+- store and manipulate strings
+- set operations: differences, intersection, unions
+- elements: just strings. no hierarchy, compound structures, etc
+
+
+# add 3 elements to set
+sadd venues "Olympic Stadium" "Nippon Budokan" "Tokyo Stadium"
+sscan venues 0 match *
+# try to add existing element again => return value of 0
+sadd venues "Olympic Stadium"
+
+# check if element exists
+# exists => return value of 1
+sismember venues "Nippon Budokan"
+# does not exist => return value of 0
+sismember venues "Eiffel Tower"
+
+# remove elements
+# by value
+sadd values "Eiffel Tower"
+srem venues "Eiffel Tower"
+# remove random element
+# remove 2 rndom elements
+spop venues 2
+
+# difference between sets
 
 
 
@@ -157,12 +185,54 @@ Basic Redis Data Structures:
 
 
 
+sdiff
+
+# create two new sets
+sadd "venue-subway:Makuhari Messe" line1 line2 line3 line4
+sadd "venue-subway:Tokyo Tatrum" line2 line4 line7
+
+# common values between sets (sinter => sets intersection)
+# returns numbered list: line2 line4
+sinter "venue-subway:Makuhari Messe" "venue-subway:Tokyo Tatrum"
+
+# other commands
+sdiff
+sunion
+
+# Use cases for sets:
+- tag cloud
+  # maintain separate list of tags for each object we want to tag
+  sadd wrench tool meta
+  # all tags belonging to object
+  sscan
+  # tags accross objects
+  sinter
+  # set of all tags
+  sunion
+- create record of unique visitors of each page on our website for a given period of time
+  # create set for each unique URL and time period, e.g.: about.html and 10th of February 2018
+  # ech visitors cookie can be recorded as a member of the set
+  # the set now contains all the unique visitors to that page within the time period, which can be retrieved with the sscan command
+  # since the expiration relates to the key are not the elements in the set, then all elements are removed when the key is expired
 
 
+####################################################################################################
+# sorted sets
+- collection of unique strings
+- score associated with each element, floating point number that provides a sorting order for the elements. ties => alphabetic
+- manipulate by value, position, score or lexigraphically
+- set command sorted sets: union, intersection
 
 
+# add element to sorted set: zadd
+- zadd nx / xx => add if valuea does not exists / update an existing element
 
+# add element with score value of 1
+zadd "subway:K" 1 Tokyo 
+zadd "subway:K" 5 Shin 2 Etchu 2 Hatchb
 
+# get elements in ranked order
+zrange
 
 
 
