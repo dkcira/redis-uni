@@ -47,6 +47,7 @@ hget event:judo availability:gold
 # return values for all of the fields <= don't use in prod
 hgetall event:judo
 
+
 # get all keys or all values <= don't use in prod
 hkeys event:judo
 hvals event:judo
@@ -259,7 +260,112 @@ zrem "subway:K" Shin
 # execute:
 zadd q-1 10 a 20 b 30 c 40 d
 # question: What is the Rank of of "b" element?
-# answer: 1
+# answer: 1 (ZRANK q-1 b)
+
+# question: Can members be added to a Sorted Set with the same score?
+# answer: yes (disambiguation happens using lexicological ordering)
+
+# question: Can elements of a Sorted Set have the same Rank?
+# answer: no
+
+# question: Can you have two elements in a Sorted Set with the same value but different rank?
+# answer: no, the values need to be unique
+
+
+# set-based operations for sorted sets but results can only be stored in another sorted set
+# one can perform intersection and union, but not a difference
+
+# Sorted sets use cases
+- Leaderboards for online games:
+  # element value: user id or screen name
+  # 6 players entries with respective point totals
+  ZADD leaderboard 90 jane 010 john 75 bob 67 kevin 88 mel 22 kate
+  # use the point total as the natural score for ordering
+  # jane gets 50 point bonus
+  ZINCRBY leaderboard 50 jane
+  # get top 3 scores
+  ZREVRANGE leaderboard 0 2 withscores
+  # reduce (cap) the size of the list to top 3
+  ZREMRANGEBYRANK leaderboard 0 -4
+- Priority queue
+  # elements can be added in any order, but they will be ordered by score
+  ZADD priorityqueue 1 p1-item1 2 p2-item1 3 p3-item1 1 p1-item2
+  # get next item to process in priority order
+  ZRANGE priorityqueue 0 0
+  # remove item from the list
+  ZREM priorityqueue p1-item1
+  # these statements can be combined in a transaction to make safe operations
+  
+
+# Quiz
+
+# question: What set operators do Sorted Sets support?
+# answer: intersection, union (but not difference)
+
+
+
+####################################################################################################
+# Homework 1
+
+Can you define an Expiration time of a field in a Hash?
+No: it is not possible, either use a different top-level key for that specific field, or store along with the filed another field with an expire time, fetch both, and let the application understand if it is still valid or not based on current time.
+
+
+What command is used to set a value in a Hash, only if the field does not already exist?
+HSETNX : Sets field in the hash stored at key to value, only if field does not yet exist. If key does not exist, a new key holding a hash is created. If field already exists, this operation has no effect.
+
+What criteria does Redis use to determine if an operation can be performed against a key?
+Datatype, Encoding of Value
+
+
+If the following commands are executed:
+set hw1-4 123
+incr hw1-4
+append hw1-4 "abc"
+What does the GETRANGE command return?
+getrange hw1-4 1 2
+
+Answer:
+"24"
+
+
+# get a hash
+hget event:UOYW-ZJAB-SZZQ-RLUJ name
+
+
+The Sorted Set invoice_totals in the sample data, contains the order total as the score and the order id as the value, for each sale made.
+What is the order total, for the order with the highest order value?
+
+zrange invoice_totals 0 -1
+zrange invoice_totals 0 -1 withscores
+# ordered by order value => the last element has the highest order
+
+
+If the following commands are executed:
+sadd hw1-7 "hello"
+spop hw1-7
+exists hw1-7
+
+answer: 0
+
+can use 'sscan hw1-7 0 match *' at each step to check the set
+
+
+
+If a Sorted Set is created as follows:
+zadd hw1-8 1 a 2 b 3 c 4 d 5 e 6 f
+What command would return members with a score greater than 3, regardless of the current members of the Sorted Set?
+
+answer: zrangebyscore hw1-8 (3 +inf
+
+
+can use the following to show the ordered set
+zrange hw1-8 0 -1 withscores
+
+
+
+
+
 
 
 
