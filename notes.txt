@@ -401,44 +401,65 @@ rpush list-one a b c d e f
 # show cardinality
 llen list-one
 # print all elements
-lrange list-one 0 -1
+	lrange list-one 0 -1
 
-# keep indices 0 to 4 (a to e, drop f) => a b c d e
-ltrim list-one 0 4
+	# keep indices 0 to 4 (a to e, drop f) => a b c d e
+	ltrim list-one 0 4
 
-# start index 0, stop index -2 (keep a b c d)
-ltrim list-one 0 -2
+	# start index 0, stop index -2 (keep a b c d)
+	ltrim list-one 0 -2
 
-# cardinality of list-one (4 elements remain)
-llen list-one
+	# cardinality of list-one (4 elements remain)
+	llen list-one
 
-# push z on the left (z a b c d)
-lpush list-one z
+	# push z on the left (z a b c d)
+	lpush list-one z
 
-# bring cardinality down to 4 again (z a b c)
-ltrim list-one 0 3
+	# bring cardinality down to 4 again (z a b c)
+	ltrim list-one 0 3
 
-# pattern: add element with rpush/lpush, cap the collection with ltrim
-
-
-# for sorted lists, the ltrim equivalent is
-ZREMRANGEBYRANK key start stop
-# but instead of retaining, removes elements between start and stop
+	# pattern: add element with rpush/lpush, cap the collection with ltrim
 
 
-# pattern: add element with zadd, cap the collection with zremrangebyrank
+	# for sorted lists, the ltrim equivalent is
+	ZREMRANGEBYRANK key start stop
+	# but instead of retaining, removes elements between start and stop
 
-# sorted set of  6 elements with scores
-zadd sortedset-two 1 a 2 b 3 c 4 d 5 e 6 f
 
-# print out the sorted set with scores
-zrange sortedset-two 0 -1 withscores
+	# pattern: add element with zadd, cap the collection with zremrangebyrank
 
-# remove elements from the 5th to the highest scoring element, remove 'f'
-zremrangebyrank sortedset-two 5 -1
+	# sorted set of  6 elements with scores
+	zadd sortedset-two 1 a 2 b 3 c 4 d 5 e 6 f
 
-# remove last element, start at index 4 since array is shorter now
-zremrangebyrank sortedset-two 4 -1
+	# print out the sorted set with scores
+	zrange sortedset-two 0 -1 withscores
+
+	# remove elements from the 5th to the highest scoring element, remove 'f'
+	zremrangebyrank sortedset-two 5 -1
+
+	# remove last element, start at index 4 since array is shorter now
+	zremrangebyrank sortedset-two 4 -1
+
+
+	# add an element with high sore
+	zadd sortedset-two 26 z
+
+	# trim the lowest scoring element
+	zremrangebyrank sortedset-two  0 0
+
+
+
+	# set operations with sets and sorted sets
+
+	# two sorted sets, one for each event
+	zadd sales:judo 1500 june 2000 bill 200 mary
+	zadd sales:wrestling 1800 bill 1000 bob 800 mary
+
+	# find intersection
+	zinterstore promo:taekwondo 2 sales:wrestling sales:judo aggregate sum
+
+	# create (unsorted) wait list for taekwondo
+	sadd waitlist:taekwondo emma bill mary
 
 
 
