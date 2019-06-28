@@ -403,71 +403,85 @@ llen list-one
 # print all elements
 	lrange list-one 0 -1
 
-	# keep indices 0 to 4 (a to e, drop f) => a b c d e
-	ltrim list-one 0 4
+# keep indices 0 to 4 (a to e, drop f) => a b c d e
+ltrim list-one 0 4
 
-	# start index 0, stop index -2 (keep a b c d)
-	ltrim list-one 0 -2
+# start index 0, stop index -2 (keep a b c d)
+ltrim list-one 0 -2
 
-	# cardinality of list-one (4 elements remain)
-	llen list-one
+# cardinality of list-one (4 elements remain)
+llen list-one
 
-	# push z on the left (z a b c d)
-	lpush list-one z
+# push z on the left (z a b c d)
+lpush list-one z
 
-	# bring cardinality down to 4 again (z a b c)
-	ltrim list-one 0 3
+# bring cardinality down to 4 again (z a b c)
+ltrim list-one 0 3
 
-	# pattern: add element with rpush/lpush, cap the collection with ltrim
-
-
-	# for sorted lists, the ltrim equivalent is
-	ZREMRANGEBYRANK key start stop
-	# but instead of retaining, removes elements between start and stop
+# pattern: add element with rpush/lpush, cap the collection with ltrim
 
 
-	# pattern: add element with zadd, cap the collection with zremrangebyrank
-
-	# sorted set of  6 elements with scores
-	zadd sortedset-two 1 a 2 b 3 c 4 d 5 e 6 f
-
-	# print out the sorted set with scores
-	zrange sortedset-two 0 -1 withscores
-
-	# remove elements from the 5th to the highest scoring element, remove 'f'
-	zremrangebyrank sortedset-two 5 -1
-
-	# remove last element, start at index 4 since array is shorter now
-	zremrangebyrank sortedset-two 4 -1
+# for sorted lists, the ltrim equivalent is
+ZREMRANGEBYRANK key start stop
+# but instead of retaining, removes elements between start and stop
 
 
-	# add an element with high sore
-	zadd sortedset-two 26 z
+# pattern: add element with zadd, cap the collection with zremrangebyrank
 
-	# trim the lowest scoring element
-	zremrangebyrank sortedset-two  0 0
+# sorted set of  6 elements with scores
+zadd sortedset-two 1 a 2 b 3 c 4 d 5 e 6 f
+
+# print out the sorted set with scores
+zrange sortedset-two 0 -1 withscores
+
+# remove elements from the 5th to the highest scoring element, remove 'f'
+zremrangebyrank sortedset-two 5 -1
+
+# remove last element, start at index 4 since array is shorter now
+zremrangebyrank sortedset-two 4 -1
 
 
+# add an element with high sore
+zadd sortedset-two 26 z
 
-	# set operations with sets and sorted sets
-
-	# two sorted sets, one for each event
-	zadd sales:judo 1500 june 2000 bill 200 mary
-	zadd sales:wrestling 1800 bill 1000 bob 800 mary
-
-	# find intersection
-	zinterstore promo:taekwondo 2 sales:wrestling sales:judo aggregate sum
-
-	# create (unsorted) wait list for taekwondo
-	sadd waitlist:taekwondo emma bill mary
+# trim the lowest scoring element
+zremrangebyrank sortedset-two  0 0
 
 
 
+# set operations with sets and sorted sets
 
+# two sorted sets, one for each event
+zadd sales:judo 1500 june 2000 bill 200 mary
+zadd sales:wrestling 1800 bill 1000 bob 800 mary
+# find intersection
+zinterstore promo:taekwondo 2 sales:wrestling sales:judo aggregate sum
 
+# sorted set commands work on unsorted sets too
 
+# create (unsorted) wait list for taekwondo => no scores
+sadd waitlist:taekwondo emma bill mary
+# create an intersection of the unsorted set with the two sorted ones
+# no scores => add the weights, 3d weight (1000) is use as score for that
+# Note: in this example we are using the max aggregation, not sum!
+zinterstore promo:taekwondo 3 sales:wrestling sales:judo waitlist:taekwondo weights 1.2 0.8 1000 aggregate max
 
+# show all value
+sscan waitlist:taekwondo 0 match *
 
+# find unique number accross a number of sets
+sadd venues:Athletics "IP Garden" "Olympic"
+sadd venues:Judo "Tokyo Stadium"
+sadd venues:Football "Nippon Budokan" "Sapporo Dome"
+#
+sunion venues:Football venues:Judo venues:Athletics
+
+# sorted sets: zunionscore
+zadd events:capacity 60102 "Closing Ceremony" 1000 "Table  Tennis" 6000 "Skateboarding"
+zadd events:sales -200 "Table Tennis" -5900 "Skateboarding"
+# find availability by combining the two sorted sets
+# no weights, so defaults 1 are used
+zunionstore events:availability 2 events:capacity events:sales aggregate sum
 
 
 
