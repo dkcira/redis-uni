@@ -483,10 +483,41 @@ zadd events:sales -200 "Table Tennis" -5900 "Skateboarding"
 # no weights, so defaults 1 are used
 zunionstore events:availability 2 events:capacity events:sales aggregate sum
 
+####################################################################################################
+# Use Case 01: Faceted Search
 
+# Problem: attribute search for events at the Redis game
+# 3 techniques
+- object inspection
+- faceted search
+- hashed index
 
+# Context: redis games, a sporting event to be held in Tokyo in 2020
+# Search for events based on attributes. example attributes to search by
+- disabled access available: yes/no
+- medal event: yes/no
+- event venue: string
 
+# traditional approaches:
+- secondary indexes
+  - storage and maintenance
+  - compound indexes
+- full text searches (solr, lucene)
+  - complexity
+  - eventual consistency
 
+# Faceted search / inverted index: an alternative to the above traditional approaches
+- simple navigation and classification
+- search accross multiple criteria
+- filter accross multiple criteria
+
+# domain object:
+- disabled access
+- venue
+- medal event
+
+# show all collections present in a db, returns a set
+scan 0 match *
 
 
 
