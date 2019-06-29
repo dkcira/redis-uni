@@ -1,0 +1,11 @@
+version: '3'
+services:
+    redis-lab:
+        container_name: redis-lab
+        ports:
+            - '8888:8888'
+        image: redisuniversity/ru101-lab
+
+# docker run command:
+# docker run --rm --name redis-lab -p:8888:8888 redisuniversity/ru101-lab
+# localhost:8888/entry.html
