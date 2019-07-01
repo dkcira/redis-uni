@@ -520,10 +520,55 @@ zunionstore events:availability 2 events:capacity events:sales aggregate sum
 scan 0 match *
 
 
+# Object Inspection method
+Regardless of the distribution of values for one or more attributes that need to be matched, every matching key will always need to be retrieved and inspected. In a relational database, this is analogous to performing a FULL TABLE SCAN without indexes.
+For very small numbers of keys (for example fewer than 100), this may be still ok. But it's clearly not appropriate for millions of keys.
+
+# Faceted Search
+There are two limiting factors for faceted searches using Sets. Firstly is the data distribution of matching attribute values. The second is the number of attributes being matches.
+This pattern relies on SINTER, which has a time complexity of O(N * M), when N is cardinality of the smallest Set and M is the number of Sets. So as the Cardinality of smallest set increases or the number of attribute being matched (i.e. the number of Sets be be examined) increases, then the cost of this method increases.
+Submit Some problems have options such as save, reset, hints, or show answer. These options follow the Submit button.
+
+# Hashed faceting
+The hashed faceting method will result in a Set which contains keys for each matching object with the attribute values being searched for.
+The limiting factor is therefore the cardinality of the of number of matches for any given attribute combination.
+
+Summary:
+- use of sets to solve domain problems
+- redis does not support seconday indexes
+- faceted search
+  sinter
+  data and cardinality
+- hashed search creates a compound value, simplifying the query
+
+# Big O Notation and Redis Commands
+- sadd: time complexity O(1) for each element, so O(N) to add N elements when the command is called with multiple arguments
+- redis commands are atomic <- redis single-threads all command executions in order to achieve this
+- O(1) commands are constant time, independent of cardinality. redis O(1) commands: APPEND, EXISTS, GET, SET, HGET, LPUSH, rpop
+- DEL: O(1) when removing a string datatype, O(N) when multiple keys are being removed, and O(M) when the key removed contains a list, set, sorted set, or hash. UNLINK is prefered to DEL since it is a non-blocking command.
+- SINTER key [key]: time complexity of O(N*M) worst case where N is the cardinality of the smallest set and M is the number of sets
+- LRANGE key start stop: time complexity of O(S+N), where S is the distance of start offset from HEAD for small lists, from nearest end (HEAD or TAIL) for large lists. N is the number of elements in the specified range
+
+
+# Execution time of commands: things to consider
+- Calculation for time complexity of the command
+- Cardinality of the data (number of elements in the set). Remember offset cost. Hashing has a constant time for accessing any field in the set
+- Multiplying factor: e.g. sinter, each additional set adds to the multiplying factor
+- Clock times are not O time. Always test with production volumes to measure the time, but use the above factors when designing your system.
 
 
 
 
+In the faceted search chapter, we explored how to optimize searches based on categories. How many Venues have disabled_access = True?
+
+Hint: Take a look at the key fs:disabled_access:True
+
+Pick one answer
+7
+31
+32
+83
+unanswered
 
 
 ####################################################################################################
