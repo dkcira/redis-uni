@@ -572,4 +572,72 @@ unanswered
 
 
 ####################################################################################################
+# Transactions
+- commands queued
+- applied in single operations
+- no nesting of Transactions
+
+
+Transactions are simply a serialized queue of pending commands that Redis will execute sequentially. Since Redis doesn’t execute a transaction until all queued commands are executed with an EXEC command, DISCARD simply needs to throw away this list of pending commands.
+
+Unlike other Databases, there are no command to undo in Redis, because commands are only applied when EXEC is called.
+
+In a queued set of commands, changes made in that Transaction are visible to the subsequent commands. Therefore, if you perform a SET, INCR or other command that changes a value, and subsequent retrieval via a GET, HGET, LPOP etc., will see the key modified by the prior commands in the transaction.
+
+# Optimistic Concurrency Control / Locking
+- Observe changes in one or more keys through declaration of interest
+- Abort transaction if observed key changed (by another process)
+- Commands:
+  watch key <- before transaction start
+  unwatch -> removes all keys
+- keys automatically unwatched after successful transaction
+
+
+Commands will get queued up in a Transaction before they are executed. The set of commands in the Transaction is executed sequentially as an atomic block, so no other command can interleave. But the value an command will observe, will be the current value the system sees.
+
+WATCH commands need to be executed before the Transaction is started with MULTI.
+
+All data types in Redis can be watched.
+
+Transactions Recap
+- Queued commands
+- Executed or discarded
+- Keys can be watched (and unwatched)
+
+# clients
+CLIENT LIST
+
+####################################################################################################
+# Object storage with hashes
+- think of the hash as a mini key-value store within the key
+
+A simple Object storage
+- store the serialized object in Redis as a string in either binary or text
+- deserialize the data structure when you read it from Redis
+but what if you need to access a single part of that structure or increment one value within it? read entire structure, transport over network, deserialize, change, serialize, transport over network, write to Redis
+
+Hash data type is more efficient for this purposes
+- hashes are schemaless
+- mechanism to map each attribute in a field within the hash
+
+
+HLEN will return the length or cardinality of the hash.
+HKEYS will return all the field names, HVALS all the values.
+
+Hashes allow individual fields to be manipulated. This saves CPU, Network and other resources when only a single of a subset of fields are required. 
+However, you cannot expire fields within a hash, the expiration can only be set on the Key, which therefore includes all fields.
+
+Redis simply manages key only. There is no notion, implicit or explicit about the relationship or dependency between keys. If any do exist, then it is the responsibility for the developer and administrator to manage.
+
+
+The WATCH command is used to implement optimistic concurrency control. This ensures that if any WATCHed key is modified during the lifetime of a transaction, that the transaction will be safely aborted.
+
+For this use case, it guarantees that key that holds the event details has not been modified by another client or connection between this code reading and modifying the key.
+
+
+
+
+####################################################################################################
+####################################################################################################
+####################################################################################################
 ####################################################################################################
