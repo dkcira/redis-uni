@@ -572,6 +572,11 @@ unanswered
 
 
 ####################################################################################################
+## WEEK 3
+####################################################################################################
+
+
+####################################################################################################
 # Transactions
 - commands queued
 - applied in single operations
@@ -634,8 +639,37 @@ The WATCH command is used to implement optimistic concurrency control. This ensu
 
 For this use case, it guarantees that key that holds the event details has not been modified by another client or connection between this code reading and modifying the key.
 
+####################################################################################################
+# storing complex objects
+- redis modules: ReJSON, Graph
+- hash for each object
+- in addition can store the relationship ends in a set to provide the abibility to provide related items more simply
+- flatten the hierarchy
 
+####################################################################################################
+# inventory control
+A Transaction can be made up of Read and Write commands. The reason why the HGET was called outside of the Transaction, is that the current value is required because it is tested in the next line of code.
+If the HGET was queued in the transaction, then this variable would not have a value.
 
+Summary, Inventory Control:
+- object storage
+- transaction to control multiple writes
+- simple state machines
+
+# homework
+- Commands run with a MULTI-EXEC block are executed atomically.
+- A single WATCH command can observe one or more keys.
+- WATCH can be called multiple times before MULTI is executed. The effects are cumulative. Once the MULTI has been executed, a WATCH command cannot be executed until the Transaction is finalized with either EXEC or DISCARD.
+- DISCARD throws away queued up commands. In a Transaction, the commands are not applied until the EXEC command is executed, so there are no commands to undo.
+- When an attempt is made to queue a command with a syntax error, then the Transaction is automatically marked as invalid. If EXEC is called, then the Transaction will be discarded.
+If the Transaction is dependent on a watched key(s), and that key changes, then the Transaction is also automatically discarded when EXEC is called.
+If a queued command operates on the wrong datatype, for example exuting an INCR on a List datatype, then Redis skips this command but continues to execute the subsequent commands in the queue. So in this circumstance, it does not cause the Transaction to fail.
+- There are a number of ways to store an object with relationships and hirerchies in Redis. Which of the techniques you use will depend on your use cases, operations you need to perform, the cardinality of data and other factors that will influence your decision.
+Which techniques can you use to store an object with relationships or hierarchies?
+Serialize the object into a String datatype
+Flatten the relationships and hierarchy into fields in a Hash
+Normalize the structure into multiple Hashes
+Normalize the structure into multiple Hashes and Sets
 
 ####################################################################################################
 ####################################################################################################
