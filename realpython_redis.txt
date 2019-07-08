@@ -1,0 +1,24 @@
+https://realpython.com/python-redis/
+
+
+redis-cli simple command:
+PING
+
+- Redis stands for Remote Dictionary Service
+- A Redis database holds key:value pairs and supports commands such as GET, SET, and DEL, as well as several hundred additional commands. (https://redis.io/commands)
+- Redis keys are always strings
+- Redis values may be a number of different data types. We’ll cover some of the more essential value data types in this tutorial: string, list, hashes, and sets. Some advanced types include geospatial items and the new stream type
+- Many Redis commands operate in constant O(1) time, just like retrieving a value from a Python dict or any hash table.
+- The Python Redis client library, redis-py does things differently. It encapsulates an actual TCP connection to a Redis server and sends raw commands, as bytes serialized using the REdis Serialization Protocol (RESP), to the server. It then takes the raw reply and parses it back into a Python object such as bytes, int, or even datetime.datetime.
+- Type and Commands
+Sets
+SADD, SCARD, SDIFF, SDIFFSTORE, SINTER, SINTERSTORE, SISMEMBER, SMEMBERS, SMOVE, SPOP, SRANDMEMBER, SREM, SSCAN, SUNION, SUNIONSTORE
+Hashes
+HDEL, HEXISTS, HGET, HGETALL, HINCRBY, HINCRBYFLOAT, HKEYS, HLEN, HMGET, HMSET, HSCAN, HSET, HSETNX, HSTRLEN, HVALS
+Lists
+BLPOP, BRPOP, BRPOPLPUSH, LINDEX, LINSERT, LLEN, LPOP, LPUSH, LPUSHX, LRANGE, LREM, LSET, LTRIM, RPOP, RPOPLPUSH, RPUSH, RPUSHX
+Strings
+APPEND, BITCOUNT, BITFIELD, BITOP, BITPOS, DECR, DECRBY, GET, GETBIT, GETRANGE, GETSET, INCR, INCRBY, INCRBYFLOAT, MGET, MSET, MSETNX, PSETEX, SET, SETBIT, SETEX, SETNX, SETRANGE, STRLEN
+- clear a DB
+FLUSHDB
+QUIT
