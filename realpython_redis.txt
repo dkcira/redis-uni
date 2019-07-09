@@ -1,5 +1,7 @@
 https://realpython.com/python-redis/
 
+directory: rpredis/
+
 
 redis-cli simple command:
 PING
