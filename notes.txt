@@ -784,6 +784,43 @@ The resulting value is the binary value 1 0 (or two in decimal).
 - permission bits & masks
   - bitop xor file1 request file2
 
+
+# Seat reservations
+- Seat map maintained for the event
+- customer can find blocks of seats that match their requirement
+- seats can be reserved and booked once and only once
+- concurrent bookings of disparate seats are allowed
+
+
+export PYTHONPATH=/Users/$(whoami)/Code/redis-uni
+
+# Quiz
+A U32 is an unsigned 32 bit field, so all 32 bits are available. If this value had been defined as an I32, that is a signed 32 bit value, then only 31 bits would have been available, since one bit would be required to store the sign.
+
+BITCOUNT returns the count of the number of set bits only.
+BITPOS can be used to find the index of the first set or unset bit.
+
+
+# Pub / Sub
+- simple syndication
+- patterned syndication
+- use case
+- simple syndication
+  - publish channel message
+  - subscribe channel
+  - unsubscribe channel
+- patterned syndication
+  - psubscribe pattern
+  - punsubscribe pattern
+- admin
+  - pubsub subcommand argument
+
+
+# Quiz
+A client can subscribe to one or more channels in a single or multiple SUBSCRIBE commands.
+
+Redis allows a byte stream to be passed as the message. This allows for simple Text values and numbers to be sent, along with a byte stream - that could represent a serialized JSON object, for example
+
 ####################################################################################################
 ####################################################################################################
 ####################################################################################################
