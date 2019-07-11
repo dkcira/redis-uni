@@ -671,6 +671,119 @@ Flatten the relationships and hierarchy into fields in a Hash
 Normalize the structure into multiple Hashes
 Normalize the structure into multiple Hashes and Sets
 
+
+
+####################################################################################################
+## WEEK 4
+####################################################################################################
+
+# Bit Data
+- Bitfields & Bit Arrays
+- Compact, optimized structures
+  - histogram of counters
+  - linux file permissions
+- Commands to manipulate Bitfields
+- No explicit Bit data type
+- Commands to operate on Strings
+
+examples
+# set unsigned 8 bit value at the offset 0 to value 42
+bitfield mykey set u8 0 42
+# and retrieve it
+bitfield mykey get u8 0
+# increment values
+bitfield mykey incrby u8 0 1
+# type => string
+type mykey
+# object encoding => raw (not string)
+object encoding mykey
+
+
+# Bit fields: type and size of fields
+# index by offset. smallest index: highest order bit, left
+# also index by position of the field itself: especially useful with uniform-sized Bitfields
+# subcommands of bitfield command
+- get, set, incrby: require type to be specified
+- type
+  - Signed (i) or Unsigned (u)
+  - Size in bits
+- limits
+  - up to i64 and u63
+- no schema
+
+
+examples
+# set unsigned 8 bit value at offset 0 to value 2
+bitfield bf1 set u8 0 2
+# retrieve (2)
+bitfield bf1 get u8 0
+# retrieve the key with 'get', hexadecimal representation of integer 2 ('\x02')
+get bf1
+
+
+# set unsigned bitfield value specifying the offset by position (position 2 = #1)
+bitfield bf2 set u8 #1 5
+# retrieve using position and offset
+bitfield bf2 get u8 #1 get u8 8 (5, 5)
+# get key ("\x00\x05")
+get bf2
+
+
+# Quiz
+Redis considers a bitfield as a array of bits. The least significant bit, is the left most bit. Consider this example:
+                        1 1 1 1 1 1
+  0 1 2 3 4 5 6 7   8 9 0 1 2 3 4 5
++-----------------+-----------------+
+| 1 0 0 0 0 0 0 0 | 0 1 0 1 1 0 1 0 |
++-----------------+-----------------+
+The most significant bit of the first byte is a position zero, and has the value 1. It is not the bit at position 7, which is the least signifcant bit of the first byte.
+
+The Hash or pound sign is used to indicate the position by offset, based on the type provided. This simplifies calculating offsets.
+
+
+# Bit Arrays
+- manipulation of individuals bits within the string data type
+- think of it as a string from left to right with the most significant bit the first byte at index 0
+- getbit, setbit: set and restore specific bits
+- bitfield is preferred: a superset of getbit setbit
+- bitcount with count the number of bits in a range or entire string that are set
+- bitcount uses byte offset as opposed to the other commands that use bit offset
+- bitop: bytewise operations (or, and)
+
+# Quiz
+Correct
+BITPOS will return the position of a bit, either set or unset depending on the arguments passed.
+Incorrect
+GETBIT gets the bit at the given offset.
+BITCOUNT will return the number of set bits, but not the position.
+BITFIELD allows bits to be retrieved.
+BITOP allows logical operators to be applied to bitfields.
+SETBIT sets or clears the bit at the given offset.
+
+Given the following commands are executed:
+bitfield  ba-q1 set u8 #0 42
+bitfield  ba-q2 set u8 #0 19
+bitop and ba-q3 ba-q1 ba-q2
+What does the following command return?
+bitfield ba-q3 get u8 #0
+
+Both BITFIELD commands will set the two binary values at position zero, or at the first byte of each key.
+The BITOP command performs a logical AND on the binary values
+     ba-q1 0 0 1 0 1 0 1 0
+     ba-q2 0 0 0 1 0 0 1 1
+AND
+     ba-q3 0 0 0 0 0 0 1 0
+The resulting value is the binary value 1 0 (or two in decimal).
+
+
+# Use cases
+- counters
+- histograms
+  - bitfield hist incrby u32 #23 1
+  - bitfield hist get u32 #23
+- permission bits & masks
+  - bitop xor file1 request file2
+
 ####################################################################################################
 ####################################################################################################
 ####################################################################################################
