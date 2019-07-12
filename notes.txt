@@ -862,6 +862,77 @@ Use cases:
   - pick lottery winners
   - show orders in real time
 
+# specific implementation
+- Pub/Sub
+  - syndication
+  - multiple listeners pfor same event
+  - simple to add / remove listeners without touching the publisher
+
+
+Quiz:
+Will a client that Subscribed to a channel, but is currently not connected, received any messages published?
+To receive a message publish to a channel, the client has to be both subscribed and connected.
+
+
+
+Quiz:
+In the example code, a patterned subscription was created with the following match pattern:
+*Ceremony
+What does that mean?
+An asterix is a wildcard matching pattern. In this example, it will ignore all preceeding characters and will match if the string ends with "Ceremony".
+
+
+# Homework
+
+- Given the following command is executed in the redis-cli
+bitfield hw4-1 set u16 #0 90
+What does the following command return?
+bitpos hw4-1 1
+Answer: 9
+Explanation
+This will feel like a "gotcha" question. The critical piece of information is in the BITFIELD command, was to set the size as U16. The value stored has the following representation in binary (broken into 2 byte chunks)
++-----------------+-----------------+
+| 0 0 0 0 0 0 0 0 | 0 1 0 1 1 0 1 0 |
++-----------------+-----------------+
+BITPOS treats the bitfield as a binary array, with the left most offset as bit 0. So starting from the left, the first bit set is the 10th bit, which is at offset 9.
+
+- How many seats are available for the seat block stored at key
+seatmap:UDAP-QVRB-FTCZ-DLCC:VIP:FX
+bitcount seatmap:UDAP-QVRB-FTCZ-DLCC:VIP:FX
+14
+get seatmap:UDAP-QVRB-FTCZ-DLCC:VIP:FX
+"\xaa\x031|"
+
+The U32 value held in this key is 2852335996. In binary this value is
+10101010 00000011 00110001 01111100
+Using BITCOUNT, the following is returned
+bitcount seatmap:UDAP-QVRB-FTCZ-DLCC:VIP:FX
+(integer) 14
+
+
+- What data type does Redis use to store BITFIELDS?
+Redis uses the String data type to store BITFIELDS. See the following example:
+> bitfield hw4-3 set u8 0 42
+1) (integer) 0
+> type hw4-3
+
+
+- What are valid logical operators for the BITOP command?
+AND, OR, NOT, XOR
+
+
+- Does Redis Publish/Subscribe guarantee delivery of messages to clients, even if the client is not currently connected?
+Redis uses a fire-and-forget mechanism. Only currently subscribed and connected clients will receive the message.
+
+
+- What command is used to find out the number of subscribers to a non-patterned channels?
+Explanation
+Correct
+PUBSUB NUMSUB returns the number of subscribers, excluding any patterned subscriptions.
+Wrong
+PUBSUB CHANNELS returns all the current active channels (i.e. where an active subscriber exists).
+PUBSUB NUMPAT returns the number of subscribers for patterned subscriptions only.
+
 
 
 ####################################################################################################
