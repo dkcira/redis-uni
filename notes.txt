@@ -2,6 +2,8 @@
 # WEEK 1
 ####################################################################################################
 
+export PYTHONPATH=/Users/$(whoami)/Code/redis-uni
+
 ####################################################################################################
 # Strings
 
@@ -792,8 +794,6 @@ The resulting value is the binary value 1 0 (or two in decimal).
 - concurrent bookings of disparate seats are allowed
 
 
-export PYTHONPATH=/Users/$(whoami)/Code/redis-uni
-
 # Quiz
 A U32 is an unsigned 32 bit field, so all 32 bits are available. If this value had been defined as an I32, that is a signed 32 bit value, then only 31 bits would have been available, since one bit would be required to store the sign.
 
@@ -815,11 +815,54 @@ BITPOS can be used to find the index of the first set or unset bit.
 - admin
   - pubsub subcommand argument
 
+- network traffic depends on number of subscribers. 1 published message of 1MB with 100 client subscribers will cause a 100MB transfer over the network
 
 # Quiz
 A client can subscribe to one or more channels in a single or multiple SUBSCRIBE commands.
 
 Redis allows a byte stream to be passed as the message. This allows for simple Text values and numbers to be sent, along with a byte stream - that could represent a serialized JSON object, for example
+
+- psubscribe => subscribe with pattern matching
+  - ? => single character wildcard
+  - * => multiple character wildcard
+  - [...] => alternate characters
+  - ^ => prefixes
+- large number of patterns can introduce more work and more latency
+
+# Pattern Publish & Subscribe
+- Admin
+  - PUBSUB subcommand [argument [argument...]]
+- Patterned Syndication
+  - PSUBSCRIBE pattern [pattern ...]
+  - PUNSUBSCRIBE [pattern [pattern...]]
+- consistent convention for naming of channels makes pub/sub more efficient
+
+Quiz:
+From the redis.io documentation
+Supported glob-style patterns:
+h?llo subscribes to hello, hallo and hxllo
+h*llo subscribes to hllo and heeeello
+h[ae]llo subscribes to hello and hallo, but not hillo
+^hell subscribes to hell but not hel
+
+Use cases:
+- Fan Out: distribute a message to one or more consumers without refactoring code
+ - SUBSCRIBE new_orders
+ - PUBLISH new_orders
+- Interprocess (Interservice) communication
+  - feeds, streams (gaming, chats)
+  - messages missed are lost and not consumed when re-connecting
+
+
+# Notifications & Fan Out
+- Analytics
+  - feed throug pub/sub to analytics
+  - sales by event or time of day
+- Notifier
+  - pick lottery winners
+  - show orders in real time
+
+
 
 ####################################################################################################
 ####################################################################################################
