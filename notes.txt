@@ -936,6 +936,34 @@ PUBSUB NUMPAT returns the number of subscribers for patterned subscriptions only
 
 
 ####################################################################################################
+## WEEK 4
 ####################################################################################################
+
+# Geospatial Data
+- Storage of Geospatial data
+- query
+- performance implications
+- typical use case
+
+# Adding geospatial points
+Storage
+- GeoHash for encoding
+- 52 bit in length
+- Sorted sets for storage
+- longitude and latitude interleaved
+
+- add one ore more members with long/lat to a key
+  GEOADD key longitute latitude member [longitute latitude member]
+- in the sorted sted the geohash is stored as the score, and the name is stored as the member
+- can use zrange to retrieve data from the sorted set
+- but can also use geohash, geopos
+- geohash: 11 chacters. compatibility with geohash.org
+- hash values can be shortened on the right with loss of precision, but still provide location close to the original
+- geohash provides locality because close hashes correspond to close values
+- the longer the geohash prefix match, the closer the objects will be
+
+
+
 ####################################################################################################
+# END
 ####################################################################################################
