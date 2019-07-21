@@ -1034,6 +1034,62 @@ Use case
 
 
 
+# Use Case: Finding Events and Venues
+
+- finding venues from a given point
+- finding events from a given subway station
+- finding venues on a given subway line
+
+Quiz:
+
+Q: The key geo:venues in the virtual lab, contains all the geospatial coordinates for all venues for the 2020 Redis Games. How many venues are within 4km of the "Imperial Palace Garden", inlcuding this point?
+
+A: The GEORADIUSBYMEMBER command can be used to find the Geospatial objects within the radius:
+> georadiusbymember geo:venues "Imperial Palace Garden" 4 km
+1) "Tokyo International Forum"
+2) "Imperial Palace Garden"
+3) "Nippon Budokan"
+4) "Olympic Stadium"
+5) "Tokyo Metropolitan Gymnasium"
+6) "National Stadium"
+From the results, it can be seen that there are 6 points, including the "Imperial Palace Garden" itself.
+
+
+Q: The key geo:venues in the virtual lab, contains all the geospatial coordinates for all events for the 2020 Redis Games. What is the distance between "National Stadium" and "Ariake Arena" events in Miles?
+
+A: The distance in miles can be found using the "mi" unit to the GEODIST command as follows:
+127.0.0.1:6379> GEODIST geo:venues "National Stadium" "Ariake Arena" mi
+"5.0953"
+Correct
+The correct distance is 5.0953 miles.
+Wrong
+nil - this means the key does not exists. Check you have the correct key name and sample data installed.
+8.2000 - this is the correct distance, but in kilometers.
+26902.8873 - this is the correct distance, but in feet.
+8200.0001 - this is the correct distance, but in meters. This is the default unit.
+
+
+Q: The key geo:events:Football contains all the geospatial coordinates all Football for the 2020 Redis Games.
+What is the distance between "Olympic Stadium" and "International Stadium Yokohama" venues in Kilometers?
+
+A: 
+127.0.0.1:6379> GEODIST geo:venues "Olympic Stadium" "International Stadium Yokohama" km
+"22.6596"
+127.0.0.1:6379> GEODIST geo:events:Football "Olympic Stadium" "International Stadium Yokohama" km
+"22.6596"
+
+Correct
+> geodist geo:events:Football "Olympic Stadium" "International Stadium Yokohama" km
+"22.6596"
+Wrong
+Nil - the key is not present. Check the key name and the sample data is loaded.
+14.0801 - this is the distance between these two points in miles
+22659.6496 - this is the distance between these two points in meters. This is the default unit.
+74342.6823 - this is the distance between these two points in feet
+
+
+
+
 ####################################################################################################
 # END
 ####################################################################################################
