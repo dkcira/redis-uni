@@ -1243,7 +1243,72 @@ Lua Scripts Recap & Use Cases
 - Pay attention to Floating point numbers
 
 
-# Inventory with Lua
+Inventory with Lua
+- track a purchase through a series of states
+
+Manage Lua scripts with Python
+- In Lua:
+  - add a code comment
+  - declare a local variable
+  - use an if statement
+  - and perform some basic math
+- In Python:
+  - store a multi-line script as a multi-line string with """
+  - register the script
+  - invoke the script with keys and arguments
+
+
+Quiz
+Q: Can you spot the TWO errors in the following Lua script?
+if ARGV[0] == "max"
+  return 1 + 1
+else
+  return nil
+end
+A:
+ARGV[0] should be ARGV[1] because Lua arrays are 1-based.
+The if-else block is missing a required "then".
+Lua scripts are not required to declare a variable, and they can return nil. Remember that Lua arrays are 1-based and that if-else blocks require the "then" keyword.
+
+Q: What's the advantage of using the Python client's register_script method?
+A: It keeps track of the script's SHA, allowing the client to use EVALSHA for script invocations behind the scenes. 
+The reason to use register_script is that it will optimize script execution by invoking EVALSHA when the script is invoked more than once.
+
+Model a purchase in a workflow
+- purchase finite state machine
+start -> reserve -> authorize -> complete
+           \-> fail   \-> fail
+
+ideal lua script
+- brief
+- implements a simple, redis-like operation
+- simplifies application code
+- preserves atomicity
+
+Quiz
+Q: Which of the following is correct for the conditional portion of a Lua IF statement?
+A: (new_state == 'RESERVED' and old_state == 'AUTHORIZE')
+Lua uses the double-equal operator (==) for comparisons and the keyword "and" for the boolean AND operation.
+
+Reserving tickets
+- in lua you concatenate strings with the '..' operator
+- in redis-lua we return 1 to indicate success
+
+
+Quiz
+
+For loop in Lua
+To iterate over a Lua list, you need to apply the Lua ipairs() function, which creates an iterable object.
+local total = 0
+for _, value in ipairs(values) do
+ total = total + value
+end
+
+Q: Suppose we have a Lua script that takes a key argument that points to a Redis hash. In our Lua script, we want to get the "quantity" value from that hash. Which is the correct way to do this?
+A: local quantity = redis.call('HGET', KEYS[1], 'quantity')
+When creating a variable in a Redis Lua script, you must always use the 'local' keyword. To run a Redis command, you use the build-in redis.call() function, passing in the name of the Redis command you want to run.
+
+
 
 
 ####################################################################################################
