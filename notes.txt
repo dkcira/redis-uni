@@ -1089,6 +1089,162 @@ Nil - the key is not present. Check the key name and the sample data is loaded.
 
 
 
+# Lua in Redis: server side scripting
+Lua scripting
+- how to invoke scripts
+- keys and arguments
+- atomicity
+- mapping data types
+- how to manage scripts
+- use cases
+
+What is Lua?
+- lightweight, embeddable scripting language
+- created at Pontifical Catholic University of Rio de Janeiro
+- MIT licensed, open source project
+- lua: moon in portuguese
+- fast, lightweight, powerful and easy to incorporate
+- small footprint
+- portable, cross platform
+
+Why use Lua and scripting?
+- wrap reddis commands with Lua (loops, conditionals, etc)
+- reduce network traffic by manipulating keys inside the server (db procedure)
+- similar to a stored procedure
+- scripts run where data is located (but need to be careful)
+- redis runs lua scripts as atomic units of work
+
+
+Running Lua scripts
+- use EVAL command
+EVAL script numkeys key [key ...] arg [arg ...]
+- example
+# create a hash
+hset hash-key field1 hello field2 world
+# use EVAL to execute a Lua script passed as a string
+eval "return redis.call('HGET', KEYS[1], ARGV[1])" 1 hash-key field2
+"world"
+- two ways to execute a command: redis.call, redis.pcall
+  - call will propagate errors back causing failure
+  - pcall returns a structure with the errors back, which can be dealt with programmatically
+
+Lua Language Features
+- variables
+- operators
+- conditions
+- loops
+- etc.
+- can define complex control flows, avoiding shipping back to the client intermediate data
+- Lua scripts are single threaded just like redis (there are some exception)
+- Lua arrays are 1 based, not 0 based
+- Lua floats are truncated, if you need to preserve full value pass float as a string
+eval "return 42" 0
+(integer) 42
+# define local variable and return that
+eval "local val=42 return val" 0
+(integer) 42
+# instead of local value set the key and get it in Lua
+# response is a string, but encoding is still int
+set int-key 42
+eval "local val = redis.call('GET', KEYS[1]) return val" 1 int-key
+"42"
+
+
+# arrays
+eval "return redis.call('HMGET', KEYS[1], ARGV[1], ARGV[2])" 1 hash-key field1 field2
+1) "hello"
+2) "world"
+# lua Table
+eval "return redis.call('HSCAN', KEYS[1], ARGV[1])" 1 hash-key 0
+1) "0"
+2) 1) "field1"
+   2) "hello"
+   3) "field2"
+   4) "world"
+# return a table from the input key and arguments
+eval "return {KEYS[1], {ARGV[1], ARGV[2]}}" 1 hash-key field1 field2
+1) "hash-key"
+2) 1) "field1"
+   2) "field2"
+
+Quiz:
+Q: Are Lua array zero index based?
+A: In Lua, arrays are one based which is different to Redis, which has zero based indexes.
+
+Q: If a Lua Number is passed to Redis that contains a floating point value, how does Redis treat that number?
+A: Redis will truncate a Lua number, removing anything after the decimal point.
+If you need to preserve a floating point number, then pass back to Redis as a String.
+
+# managing lua scripts
+redis treats EVAL as an atomic command
+- atomic operation
+- parse
+- execution
+- return values
+- cache compiled scripts (overhead in the eval step)
+- but you can load the scripts to avoid this overhead
+SCRIPT LOAD script
+# get the return hash (sha1) and use EVALSHA instead of EVAL
+EVALSHA sha1 ...
+
+
+script load "local val=redis.call('GET', KEYS[1]) return val"
+"dd47ad79bb7b6d7d2b8e0607c344d134412e84e0"
+
+evalsha "dd47ad79bb7b6d7d2b8e0607c344d134412e84e0" 1 int-key
+"42"
+
+# check if script already exists before loading, 1 => "YES"
+SCRIPT EXISTS sha1
+
+script exists "dd47ad79bb7b6d7d2b8e0607c344d134412e84e0" 
+1) (integer) 1
+
+# useful commands
+- remove all cached strings
+SCRIPT FLUSH
+- scripts with bugs/conditions that do not stop. kill the currently executing script
+SCRIPT KILL
+- debug script. never in production, but very useful in dev
+SCRIPT DEBUG YES|SYNC|NO
+
+
+When is a Lua script not atomic?
+- by default the script will block for 5 seconds (this default can be changed)
+- after execution threshold Redis will not terminate the script because data could be left in an incosistent state
+- What does Redis do?
+  - log message (create alert on such messages!)
+  - redis start accepting new commands for other clients
+  - you can use SCRIPT KILL if it goes over threshold
+  - SHUTDOWN NOSAVE shuts the server down without saving any pending changes from Lua or any preceding changes since the last disk flush
+
+What does this mean?
+- scope scripts to the absolute minimum
+- take into account time-complexity. O(1) probably ok, others depend on data cardinality
+- script is transactional boundary
+- test, test, test
+
+Quiz
+Q: How can a Lua script be invoked?
+A: Lua script can be invoked by passing the script into the EVAL command, or by passing the SHA1 digest of stored script into EVALSHA.
+
+
+Lua Scripts Recap & Use Cases
+- encapsulate commands together and avoid transaction complexity
+- limited counter
+  - count by period
+  - adjust counter
+  - allow request if threshold not exceeded
+- encapsulation of logic + data
+- executed server side
+- Atomic Unit => blocking operation
+- Keep them simple
+- Pass keys(s) (don't hardcode them)
+- Pay attention to Floating point numbers
+
+
+# Inventory with Lua
+
 
 ####################################################################################################
 # END
