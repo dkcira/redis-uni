@@ -962,6 +962,76 @@ Storage
 - geohash provides locality because close hashes correspond to close values
 - the longer the geohash prefix match, the closer the objects will be
 
+# Is the earth flat
+- The earth is approximately spherical, squashed at the poles
+- Redis assumes a perfectly spherical earth, so it has limitations
+- Redis works best closer to the equator, where most people live
+- Redis is limited to
+  - Valid longitudes: -180 to 180 degrees
+  - Valid latitudes: -85.05112878 to 85.05112878 degrees
+
+Set operations
+- with geospatial data you need to avoid set operations that change the values (add or subtract data)
+     - zinterstore
+     - zunionstore
+
+
+Quiz:
+
+Q: What technique does Redis use to compute a value for Longitude / Latitude pairs?
+A: Redis uses the technique of geo hashing to store geospatial points.
+
+Q: How many bits is a Geo hash stored in?
+A: A Geo hash is stored in 52 bits.
+
+Q: Does Redis limit Longitude values?
+A: Redis supports -180 to 180 degrees in Longitude, so Longitude value are not limited. However, Redis limits support of Latitude to -85.05112878 to 85.05112878.
+
+
+# Searching for geospatial objects
+- distance between two members at the same key. unit = m, km, feet, miles
+  GEODIST key member1 member2 [unit]
+- find geospatial members within a specified radius within the same key:
+  GEORADIUS key longitude langitude radius m|km|ft|mi ...
+  GEORADIUSBYMEMBER key member radius m|...
+
+
+Quiz:
+
+Q: When performing a GEORADIUS search, what units can the radius be specified in?
+A: Valid units for Radius are Feet, Miles, Meters and Kilometers. 
+While Centimeters, Inches, Yards are multiples or fractions of the supported units, there is no explicit support for these units. You will need to compute these units by applying the right factor. 
+Nautical miles is now a constant of 1,852 meters. Historically this was defined as one minute of latitude. If you want to use Nautical miles, then use Meters or Kilometers and factor the result by using this constant. 
+Parsecs are not supported, but a Parsec is about 19 trillion miles if you want to play around!
+
+Q: Can the GEODIST command calculate distance between geospatial objects in different keys?
+A: The GEODIST command does not support multiple source keys. The command can only compute distances between points stored in the same key.
+
+In order to solve this problem, you will need to combine the members of each Geospatial key into a single key. ZUNIONSTORE, ZINTERSTORE can be used to perform this task. Once a single key has been created with all relevant values, GEODIST can be used on that key to find the distances between Geospatial objects.
+
+# Use cases
+- finding points nearby
+  - GEOADD
+  - GEORADIUS
+- locality as another dimension to enrich an app
+  - customers in location
+    - GEOADD nyc-tribea
+    - GEORADIUSBYMEMBER
+  - offers by location
+
+
+# Geospatial Summary
+- Storage of Lat / Long pairs
+- Retrieval by
+  - distance
+  - radius
+- Why Redis?
+  - real-time access
+  - high change rates
+Use case
+  - location based services
+  - targeted advertising
+
 
 
 ####################################################################################################
